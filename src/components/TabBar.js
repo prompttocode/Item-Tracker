@@ -6,7 +6,7 @@ import { useLinkBuilder } from '@react-navigation/native';
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import HomeScreen from '../Screens/HomeScreen';
 import QrScan from '../Screens/QrScan';
-import DetailScreen from '../Screens/DetailScreen';
+import InvoiceHistoryScreen from '../Screens/InvoiceHistoryScreen';
 
 
 const Tab = createBottomTabNavigator();
@@ -15,8 +15,8 @@ const TabBar = () => {
   return (
     <Tab.Navigator tabBar={props => <MyTabBar {...props} />}>
       <Tab.Screen name="HomeScreen" component={HomeScreen} options={{headerShown:false}} />
-      <Tab.Screen name="QrScan" component={QrScan} options={{headerShown:false}} />
-      <Tab.Screen name="DetailScreen" component={DetailScreen} options={{headerShown:false}} />
+      <Tab.Screen name="QrScan" component={QrScan} options={{title: "Quét QR"}} />
+      <Tab.Screen name="InvoiceHistoryScreen" component={InvoiceHistoryScreen} options={{title: "Lịch sử"}} />
     </Tab.Navigator>
   );
 };
@@ -112,7 +112,7 @@ export function MyTabBar({ state, descriptors, navigation }) {
               return require('../assets/images/house.png');
             case 'QrScan':
               return require('../assets/images/qrcode.png');
-            case 'DetailScreen':
+            case 'InvoiceHistoryScreen':
               return require('../assets/images/detail.png');
             default:
               return require('../assets/images/house.png');
