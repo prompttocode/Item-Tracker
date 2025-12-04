@@ -6,22 +6,33 @@ import {
   FlatList,
   Alert,
   ActivityIndicator,
-  TextInput,
   TouchableOpacity,
-  SafeAreaView,
   Platform,
   Button,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
+import DatePicker from 'react-native-date-picker';
 
 const InvoiceHistoryScreen = ({ navigation }) => {
   const [invoices, setInvoices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortOption, setSortOption] = useState('date_desc');
-  const [startDate, setStartDate] = useState(''); // YYYY-MM-DD
-  const [endDate, setEndDate] = useState('');     // YYYY-MM-DD
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [openStartDatePicker, setOpenStartDatePicker] = useState(false);
+  const [openEndDatePicker, setOpenEndDatePicker] = useState(false);
+
+  // Helper to format date to YYYY-MM-DD
+  const formatDate = (date) => {
+    if (!date) return null;
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = (`0${d.getMonth() + 1}`).slice(-2);
+    const day = (`0${d.getDate()}`).slice(-2);
+    return `${year}-${month}-${day}`;
+  };
 
   const loadInvoices = useCallback(async () => {
     setIsLoading(true);
@@ -163,21 +174,53 @@ const InvoiceHistoryScreen = ({ navigation }) => {
               </Picker>
             </View>
             <View style={styles.dateFilterContainer}>
-                <TextInput
-                    style={styles.dateInput}
-                    placeholder="Từ ngày (YYYY-MM-DD)"
-                    value={startDate}
-                    onChangeText={setStartDate}
-                />
-                <TextInput
-                    style={styles.dateInput}
-                    placeholder="Đến ngày (YYYY-MM-DD)"
-                    value={endDate}
-                    onChangeText={setEndDate}
-                />
+                <TouchableOpacity style={styles.dateInput} onPress={() => setOpenStartDatePicker(true)}>
+                    <Text style={startDate ? styles.dateText : styles.placeholderText}>
+                        {startDate ? `Từ: ${formatDate(startDate)}` : 'Từ ngày'}
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.dateInput} onPress={() => setOpenEndDatePicker(true)}>
+                    <Text style={endDate ? styles.dateText : styles.placeholderText}>
+                        {endDate ? `Đến: ${formatDate(endDate)}` : 'Đến ngày'}
+                    </Text>
+                </TouchableOpacity>
             </View>
+
+            <DatePicker
+                modal
+                open={openStartDatePicker}
+                date={startDate || new Date()}
+                mode="date"
+                onConfirm={(date) => {
+                    setOpenStartDatePicker(false);
+                    setStartDate(date);
+                }}
+                onCancel={() => {
+                    setOpenStartDatePicker(false);
+                }}
+                title="Chọn ngày bắt đầu"
+                confirmText="Xác nhận"
+                cancelText="Hủy"
+            />
+            <DatePicker
+                modal
+                open={openEndDatePicker}
+                date={endDate || new Date()}
+                mode="date"
+                onConfirm={(date) => {
+                    setOpenEndDatePicker(false);
+                    setEndDate(date);
+                }}
+                onCancel={() => {
+                    setOpenEndDatePicker(false);
+                }}
+                title="Chọn ngày kết thúc"
+                confirmText="Xác nhận"
+                cancelText="Hủy"
+            />
+
              <View style={{marginVertical: 5}}>
-                <Button title="Xóa bộ lọc" onPress={() => { setStartDate(''); setEndDate(''); setSortOption('date_desc')}} />
+                <Button title="Xóa bộ lọc" onPress={() => { setStartDate(null); setEndDate(null); setSortOption('date_desc')}} />
              </View>
             <Button title="Xóa toàn bộ lịch sử" onPress={handleClearHistory} color="#e74c3c"/>
           </View>
@@ -233,6 +276,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
     overflow: 'hidden',
+    justifyContent: 'center',
   },
   dateFilterContainer: {
     flexDirection: 'row',
@@ -248,6 +292,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginHorizontal: 4,
     backgroundColor: '#fafbfd',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: '#9ca3af',
+  },
+  dateText: {
+    color: '#111827',
   },
   controlsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   emptyContainer: {
