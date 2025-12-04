@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Button,
+  Platform,
 } from 'react-native';
-import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import React, {useState, useEffect, useMemo, useCallback, useLayoutEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {Picker} from '@react-native-picker/picker';
@@ -36,9 +36,20 @@ const HomeScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [sortOption, setSortOption] = useState('date_desc');
 
   const navigation = useNavigation();
+
+  // Set up header search bar
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerSearchBarOptions: {
+        placeholder: "Tìm kiếm sản phẩm...",
+        onChangeText: (event) => setSearchTerm(event.nativeEvent.text),
+      },
+    });
+  }, [navigation, setSearchTerm]);
 
   const loadProducts = useCallback(async () => {
     setIsLoading(true);
@@ -81,6 +92,12 @@ const HomeScreen = () => {
     if (categoryFilter !== 'All') {
       products = products.filter(p => p.category === categoryFilter);
     }
+    
+    // Filter by Status
+    if (statusFilter !== 'All') {
+      const isActive = statusFilter === 'Active';
+      products = products.filter(p => p.is_active === isActive);
+    }
 
     // Filter by Search Term
     if (searchTerm) {
@@ -111,7 +128,7 @@ const HomeScreen = () => {
     }
 
     return products;
-  }, [allProducts, searchTerm, categoryFilter, sortOption]);
+  }, [allProducts, searchTerm, categoryFilter, statusFilter, sortOption]);
 
   const renderItem = ({item}) => (
     <TouchableOpacity
@@ -130,6 +147,10 @@ const HomeScreen = () => {
             currency: 'VND',
           })}
         </Text>
+        <View style={styles.statusContainer}>
+            <View style={[styles.statusDot, { backgroundColor: item.is_active ? '#2ecc71' : '#e74c3c' }]} />
+            <Text style={styles.statusText}>{item.is_active ? 'Active' : 'Inactive'}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -144,27 +165,19 @@ const HomeScreen = () => {
 
   if (allProducts.length === 0) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.emptyText}>Chưa có sản phẩm nào.</Text>
-        <View style={{marginTop: 20}}>
-            <Button 
-                title="Thêm sản phẩm đầu tiên" 
-                onPress={() => navigation.navigate('QrScan')}
-            />
-        </View>
-      </View>
+      <SafeAreaView style={styles.centerContainer}>
+        <Text style={styles.emptyTitle}>Chưa có sản phẩm nào.</Text>
+        <Text style={styles.emptySubtitle}>Bắt đầu bằng cách quét mã sản phẩm để thêm vào kho</Text>
+        <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('QrScan')}>
+          <Text style={styles.primaryButtonText}>Thêm sản phẩm đầu tiên</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.controlsContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Tìm theo tên sản phẩm..."
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-        />
         <View style={styles.pickerRow}>
           <View style={styles.pickerContainer}>
             <Picker
@@ -176,6 +189,17 @@ const HomeScreen = () => {
               ))}
             </Picker>
           </View>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={statusFilter}
+              onValueChange={itemValue => setStatusFilter(itemValue)}>
+              <Picker.Item label="Tất cả trạng thái" value="All" />
+              <Picker.Item label="Hoạt động (Active)" value="Active" />
+              <Picker.Item label="Không hoạt động (Inactive)" value="Inactive" />
+            </Picker>
+          </View>
+        </View>
+        <View style={[styles.pickerRow, {marginTop: 10}]}>
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={sortOption}
@@ -209,7 +233,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f3f6f9',
   },
   centerContainer: {
     flex: 1,
@@ -217,22 +241,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  emptyText: {
-    fontSize: 18,
-    color: '#888',
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0f172a',
     textAlign: 'center',
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#64748b',
+    textAlign: 'center',
+    marginBottom: 18,
   },
   controlsContainer: {
-    padding: 10,
+    padding: 12,
     backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderColor: '#eef2f7',
   },
   searchInput: {
-    height: 40,
+    height: 42,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 10,
+    borderColor: '#e6edf8',
+    borderRadius: 10,
+    paddingHorizontal: 12,
     marginBottom: 10,
+    backgroundColor: '#fafbfd',
   },
   pickerRow: {
     flexDirection: 'row',
@@ -241,48 +276,91 @@ const styles = StyleSheet.create({
   pickerContainer: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    marginHorizontal: 2,
+    borderColor: '#e6edf8',
+    borderRadius: 10,
+    marginHorizontal: 4,
+    overflow: 'hidden',
+    justifyContent: 'center',
   },
   list: {
-    padding: 10,
+    padding: 12,
+    paddingBottom: 120,
   },
   productContainer: {
     flexDirection: 'row',
     backgroundColor: 'white',
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 8,
+    padding: 14,
+    marginBottom: 12,
+    borderRadius: 12,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: Platform.OS === 'ios' ? 0.06 : 0.12,
+    shadowRadius: 6,
     elevation: 3,
   },
   productImage: {
     width: 80,
     height: 80,
-    borderRadius: 8,
+    borderRadius: 10,
   },
   imagePlaceholder: {
     width: 80,
     height: 80,
-    borderRadius: 8,
-    backgroundColor: '#e0e0e0',
+    borderRadius: 10,
+    backgroundColor: '#eef2f8',
   },
   productInfo: {
     marginLeft: 15,
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     flex: 1,
   },
   productName: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0f172a',
   },
   productPrice: {
-    fontSize: 16,
-    color: '#888',
-    marginTop: 5,
+    fontSize: 14,
+    color: '#475569',
+    marginTop: 4,
   },
+    statusContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 6,
+    },
+    statusDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        marginRight: 6,
+    },
+    statusText: {
+        fontSize: 12,
+        color: '#64748b',
+    },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderColor: '#eef2f7',
+  },
+  headerLeft: { width: 80, alignItems: 'flex-start' },
+  headerRight: { width: 80, alignItems: 'flex-end' },
+  headerCenter: { flex: 1, alignItems: 'center' },
+  headerAction: { color: '#2563eb', fontSize: 14 },
+  title: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
+  subtitle: { fontSize: 12, color: '#6b7280' },
+  primaryButton: {
+    marginTop: 12,
+    backgroundColor: '#2563eb',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  primaryButtonText: { color: '#fff', fontWeight: '700' },
 });

@@ -64,38 +64,32 @@ const QrScan = () => {
           const productJSON = await AsyncStorage.getItem(scannedId);
           if (productJSON) {
             const product = JSON.parse(productJSON);
+
+            // Check if the product is active
+            if (product.is_active === false) {
+              Toast.show(`Sản phẩm "${product.name}" không hoạt động.`, {
+                duration: Toast.durations.LONG,
+                position: Toast.positions.CENTER,
+                backgroundColor: '#e74c3c', // Red for error/warning
+                textColor: 'white',
+                opacity: 1,
+              });
+              setTimeout(() => setIsScanningActive(true), 2000); // Resume scanning
+              return; // Stop further processing
+            }
+
             addToCart(product);
             Toast.show(`"${product.name}" đã được thêm vào giỏ hàng.`, {
-              // Dưới đây là các tùy chọn để bạn có thể tùy chỉnh Toast
-              
-              // THỜI GIAN HIỂN THỊ
-              duration: 1000, // SHORT, LONG hoặc một số (ms)
-
-              // VỊ TRÍ
-              position: 200, // TOP, BOTTOM, CENTER
-              // Hoặc bạn có thể đặt một giá trị số cụ thể, ví dụ: 60 (cách đáy 60px)
-              
-              // KIỂU DÁNG & KÍCH THƯỚC
-              containerStyle: {
-                
-              },
-              backgroundColor: '#27ae60', // Màu nền (xanh lá cho thành công)
-              opacity: 1, // Độ trong suốt (0.0 - 1.0)
-              
-              // VĂN BẢN
-              textStyle: {
-                // fontSize: 16,
-                // fontWeight: 'bold',
-              },
-              textColor: 'white', // Màu chữ
-              
-              // HIỆU ỨNG
-              animation: true, // Bật/tắt hiệu ứng xuất hiện/biến mất
-              shadow: false, // Bật/tắt đổ bóng
-              
-              // TƯƠNG TÁC
-              hideOnPress: true, // Ẩn khi người dùng nhấn vào
-              delay: 0, // Thời gian trễ trước khi hiển thị (ms)
+              duration: 1000,
+              position: 200,
+              containerStyle: {},
+              backgroundColor: '#27ae60',
+              opacity: 1,
+              textColor: 'white',
+              animation: true,
+              shadow: false,
+              hideOnPress: true,
+              delay: 0,
             });
             setTimeout(() => {
               setIsScanningActive(true);

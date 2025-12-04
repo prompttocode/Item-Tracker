@@ -4,17 +4,16 @@ import {
   View,
   ScrollView,
   TextInput,
-  Button,
-  Image,
   Alert,
   Switch,
   TouchableOpacity,
+  Image
 } from 'react-native';
-import React, {useState} from 'react';
-import {Picker} from '@react-native-picker/picker';
-import {launchImageLibrary} from 'react-native-image-picker';
+import React, { useState } from 'react';
+import { Picker } from '@react-native-picker/picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const CATEGORIES = [
   'Hàng tiêu dùng nhanh',
@@ -31,8 +30,8 @@ const CATEGORIES = [
   'Dịch vụ',
 ];
 
-const AddScreen = ({route}) => {
-  const {id} = route.params;
+const AddScreen = ({ route }) => {
+  const { id } = route.params;
   const navigation = useNavigation();
 
   const [name, setName] = useState('');
@@ -44,7 +43,7 @@ const AddScreen = ({route}) => {
   const [standardCost, setStandardCost] = useState('');
 
   const handleSelectImage = () => {
-    launchImageLibrary({mediaType: 'photo'}, response => {
+    launchImageLibrary({ mediaType: 'photo' }, response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
@@ -52,7 +51,7 @@ const AddScreen = ({route}) => {
         Alert.alert('Lỗi', 'Không thể chọn ảnh.');
       } else {
         if (response.assets && response.assets.length > 0) {
-            setImage(response.assets[0].uri);
+          setImage(response.assets[0].uri);
         }
       }
     });
@@ -85,7 +84,7 @@ const AddScreen = ({route}) => {
 
       await AsyncStorage.setItem(id, JSON.stringify(product));
       Alert.alert('Thành công', 'Sản phẩm đã được lưu.', [
-        {text: 'OK', onPress: () => navigation.goBack()},
+        { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
       console.error('Failed to save product:', error);
@@ -95,6 +94,8 @@ const AddScreen = ({route}) => {
 
   return (
     <ScrollView style={styles.container}>
+      <Text style={styles.header}>Thêm Sản Phẩm</Text>
+
       <Text style={styles.label}>ID Sản phẩm (từ mã QR)</Text>
       <TextInput style={styles.input} value={id} editable={false} />
 
@@ -143,7 +144,7 @@ const AddScreen = ({route}) => {
         placeholder="Nhập giá nhập"
         keyboardType="numeric"
       />
-      
+
       <View style={styles.switchContainer}>
         <Text style={styles.label}>Trạng thái (Active)</Text>
         <Switch value={isActive} onValueChange={setIsActive} />
@@ -151,8 +152,8 @@ const AddScreen = ({route}) => {
 
       <Text style={styles.label}>Hình ảnh</Text>
       <TouchableOpacity style={styles.imageContainer} onPress={handleSelectImage}>
-        {image && <Image source={{uri: image}} style={styles.image} />}
-        {!image && <Text style={{textAlign: 'center', fontSize: 16}}>Chọn ảnh</Text>}
+        {image && <Image source={{ uri: image }} style={styles.image} />}
+        {!image && <Text style={styles.imagePlaceholder}>Chọn ảnh</Text>}
       </TouchableOpacity>
 
       <Text style={styles.label}>Ngày tạo</Text>
@@ -162,9 +163,9 @@ const AddScreen = ({route}) => {
         editable={false}
       />
 
-      <View style={styles.button}>
-        <Button title="Lưu sản phẩm" onPress={handleSaveProduct} />
-      </View>
+      <TouchableOpacity style={styles.saveButton} onPress={handleSaveProduct}>
+        <Text style={styles.saveButtonText}>Lưu sản phẩm</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -175,36 +176,47 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333',
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 10,
+    color: '#555',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 8,
     padding: 10,
     marginTop: 5,
     fontSize: 16,
-    backgroundColor: '#f9f9f9'
+    backgroundColor: '#fff',
   },
   inputMulti: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 8,
     padding: 10,
     marginTop: 5,
     fontSize: 16,
     height: 100,
     textAlignVertical: 'top',
+    backgroundColor: '#fff',
   },
   pickerContainer: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 8,
     marginTop: 5,
+    backgroundColor: '#fff',
   },
   switchContainer: {
     flexDirection: 'row',
@@ -215,19 +227,35 @@ const styles = StyleSheet.create({
   imageContainer: {
     alignItems: 'center',
     marginTop: 10,
-    width:150, height:150,
-    borderWidth:1,
-    borderColor:'#ccc',
-    justifyContent:'center',
-    borderStyle:'dashed'
+    width: 150,
+    height: 150,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    justifyContent: 'center',
+    borderStyle: 'dashed',
+    borderRadius: 8,
+    backgroundColor: '#fff',
   },
   image: {
     width: 150,
     height: 150,
-    position:'absolute'
+    borderRadius: 8,
   },
-  button: {
-      marginTop: 20,
-      marginBottom: 40
-  }
+  imagePlaceholder: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#888',
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });

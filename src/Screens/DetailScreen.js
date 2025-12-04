@@ -221,6 +221,7 @@ const DetailScreen = ({route}) => {
 
           <View style={styles.detailItem}>
             <Text style={styles.label}>Trạng thái:</Text>
+            <Text style={styles.label}>(Active/Inactive)</Text>
             <Switch
               value={product.is_active}
               onValueChange={value => handleInputChange('is_active', value)}
