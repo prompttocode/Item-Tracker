@@ -6,8 +6,9 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
-  Button,
   Alert,
+  SafeAreaView,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -88,11 +89,15 @@ const BillScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+
+
       {cart.length === 0 ? (
         <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Giỏ hàng của bạn đang trống.</Text>
-            <Button title="Bắt đầu quét sản phẩm" onPress={() => navigation.navigate('QrScan')} />
+          <Text style={styles.emptyText}>Giỏ hàng của bạn đang trống.</Text>
+          <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.replace('TabMain')}>
+            <Text style={styles.primaryButtonText}>Bắt đầu quét sản phẩm</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <>
@@ -102,18 +107,27 @@ const BillScreen = () => {
             keyExtractor={item => item.id}
             contentContainerStyle={styles.list}
           />
+
           <View style={styles.footer}>
-            <Text style={styles.totalText}>
-              Tổng cộng: {total.toLocaleString('vi-VN')} đ
-            </Text>
-            <View style={styles.buttonContainer}>
-              <Button title="Hủy hóa đơn" onPress={handleCancel} color="#e74c3c" />
-              <Button title={`Thanh toán (${cart.length})`} onPress={handleCheckout} color="#27ae60" />
+            <View style={styles.footerRow}>
+              <View>
+                <Text style={styles.totalLabel}>Tổng cộng</Text>
+                <Text style={styles.totalText}>{total.toLocaleString('vi-VN')} đ</Text>
+              </View>
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.secondaryButton} onPress={handleCancel}>
+                  <Text style={styles.secondaryButtonText}>Hủy</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+                  <Text style={styles.checkoutButtonText}>Thanh toán ({cart.length})</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -122,84 +136,113 @@ export default BillScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f3f6f9',
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderColor: '#eef2f7',
+  },
+  headerLeft: { width: 60, alignItems: 'flex-start' },
+  headerRight: { width: 60, alignItems: 'flex-end' },
+  headerCenter: { flex: 1, alignItems: 'center' },
+  headerAction: { color: '#2563eb', fontSize: 15 },
+  title: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
+  subtitle: { fontSize: 12, color: '#6b7280' },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
   emptyText: {
     fontSize: 18,
-    color: '#888',
-    marginBottom: 20,
+    color: '#64748b',
+    marginBottom: 18,
   },
+  primaryButton: {
+    backgroundColor: '#2563eb',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  primaryButtonText: { color: '#fff', fontWeight: '700' },
   list: {
-    paddingBottom: 150, // space for footer
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 180, // space for footer
   },
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',
-    padding: 15,
-    marginVertical: 4,
-    marginHorizontal: 8,
-    borderRadius: 8,
-    elevation: 2,
+    padding: 12,
+    marginVertical: 8,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.06 : 0.18,
+    shadowRadius: 6,
+    elevation: 3,
   },
   itemImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    marginRight: 15,
+    width: 64,
+    height: 64,
+    borderRadius: 10,
+    marginRight: 14,
   },
-  itemDetails: {
-    flex: 1,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  itemPrice: {
-    fontSize: 14,
-    color: '#888',
-    marginTop: 4,
-  },
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  itemDetails: { flex: 1 },
+  itemName: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
+  itemPrice: { fontSize: 14, color: '#475569', marginTop: 6 },
+  quantityContainer: { flexDirection: 'row', alignItems: 'center' },
   quantityButton: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    paddingHorizontal: 15,
-    color: '#007bff',
-  },
-  quantityText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    minWidth: 30,
-    textAlign: 'center',
+    fontWeight: '700',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    color: '#2563eb',
+    backgroundColor: '#eef2ff',
+    borderRadius: 8,
   },
+  quantityText: { fontSize: 16, fontWeight: '700', minWidth: 36, textAlign: 'center' },
   footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     backgroundColor: 'white',
-    padding: 20,
+    paddingTop: 14,
+    paddingBottom: 28,
+    paddingHorizontal: 16,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
     borderTopWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#eef2f7',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: Platform.OS === 'ios' ? 0.06 : 0.12,
+    shadowRadius: 8,
     elevation: 10,
   },
-  totalText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'right',
-    marginBottom: 15,
+  footerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  totalLabel: { fontSize: 12, color: '#6b7280' },
+  totalText: { fontSize: 20, fontWeight: '800', color: '#0f172a' },
+  buttonContainer: { flexDirection: 'row', alignItems: 'center' },
+  secondaryButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e6e9ef',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginRight: 10,
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
+  secondaryButtonText: { color: '#ef4444', fontWeight: '700' },
+  checkoutButton: { backgroundColor: '#10b981', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10 },
+  checkoutButtonText: { color: '#fff', fontWeight: '800' },
 });
