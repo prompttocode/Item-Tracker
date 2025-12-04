@@ -14,7 +14,7 @@ const Tab = createBottomTabNavigator();
 const TabBar = () => {
   return (
     <Tab.Navigator tabBar={props => <MyTabBar {...props} />}>
-      <Tab.Screen name="HomeScreen" component={HomeScreen} options={{headerShown:false}} />
+      <Tab.Screen name="HomeScreen" component={HomeScreen} options={{headerShown:false,title: "Trang chủ"}} />
       <Tab.Screen name="QrScan" component={QrScan} options={{title: "Quét QR"}} />
       <Tab.Screen name="InvoiceHistoryScreen" component={InvoiceHistoryScreen} options={{title: "Lịch sử"}} />
     </Tab.Navigator>

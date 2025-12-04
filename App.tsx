@@ -1,3 +1,4 @@
+import { RootSiblingParent } from 'react-native-root-siblings';
 import { StyleSheet } from 'react-native';
 import React from 'react';
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
@@ -14,43 +15,45 @@ const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
-    <CartProvider>
-      <NavigationContainer>
-        <Stack.Navigator 
-          initialRouteName="TabMain"
-          screenOptions={{
-            headerTintColor: '#007bff',
-            headerTitleStyle: { fontWeight: 'bold' },
-          }}
-        >
-          <Stack.Screen
-            name="TabMain"
-            component={TabBar}
-            options={{
-              headerShown: false, // Hide header for the TabBar component itself, as tab screens will have their own headers.
+    <RootSiblingParent>
+      <CartProvider>
+        <NavigationContainer>
+          <Stack.Navigator 
+            initialRouteName="TabMain"
+            screenOptions={{
+              headerTintColor: '#007bff',
+              headerTitleStyle: { fontWeight: 'bold' },
             }}
-          />
-          <Stack.Screen
-            name="AddScreen"
-            component={AddScreen}
-            options={{ title: 'Thêm sản phẩm' }}
-          />
-          <Stack.Screen
-            name="BillScreen"
-            component={BillScreen}
-            options={{ 
-              title: 'Hóa đơn',
-              presentation: 'modal', // Open as a modal
-            }}
-          />
-          <Stack.Screen
-            name="DetailScreen"
-            component={DetailScreen}
-            options={{ title: 'Chi tiết sản phẩm' }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </CartProvider>
+          >
+            <Stack.Screen
+              name="TabMain"
+              component={TabBar}
+              options={{
+                headerShown: false, // Hide header for the TabBar component itself, as tab screens will have their own headers.
+              }}
+            />
+            <Stack.Screen
+              name="AddScreen"
+              component={AddScreen}
+              options={{ title: 'Thêm sản phẩm' }}
+            />
+            <Stack.Screen
+              name="BillScreen"
+              component={BillScreen}
+              options={{ 
+                title: 'Hóa đơn',
+                presentation: 'modal', // Open as a modal
+              }}
+            />
+            <Stack.Screen
+              name="DetailScreen"
+              component={DetailScreen}
+              options={{ title: 'Chi tiết sản phẩm' }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </CartProvider>
+    </RootSiblingParent>
   );
 };
 

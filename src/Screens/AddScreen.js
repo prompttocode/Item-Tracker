@@ -8,6 +8,7 @@ import {
   Image,
   Alert,
   Switch,
+  TouchableOpacity,
 } from 'react-native';
 import React, {useState} from 'react';
 import {Picker} from '@react-native-picker/picker';
@@ -97,7 +98,7 @@ const AddScreen = ({route}) => {
       <Text style={styles.label}>ID Sản phẩm (từ mã QR)</Text>
       <TextInput style={styles.input} value={id} editable={false} />
 
-      <Text style={styles.label}>Tên sản phẩm (bắt buộc)</Text>
+      <Text style={styles.label}>Tên sản phẩm </Text>
       <TextInput
         style={styles.input}
         value={name}
@@ -125,7 +126,7 @@ const AddScreen = ({route}) => {
         multiline
       />
 
-      <Text style={styles.label}>Giá bán (bắt buộc)</Text>
+      <Text style={styles.label}>Giá bán</Text>
       <TextInput
         style={styles.input}
         value={standardPrice}
@@ -134,7 +135,7 @@ const AddScreen = ({route}) => {
         keyboardType="numeric"
       />
 
-      <Text style={styles.label}>Giá nhập (bắt buộc)</Text>
+      <Text style={styles.label}>Giá nhập</Text>
       <TextInput
         style={styles.input}
         value={standardCost}
@@ -149,10 +150,10 @@ const AddScreen = ({route}) => {
       </View>
 
       <Text style={styles.label}>Hình ảnh</Text>
-      <View style={styles.imageContainer}>
+      <TouchableOpacity style={styles.imageContainer} onPress={handleSelectImage}>
         {image && <Image source={{uri: image}} style={styles.image} />}
-        <Button title="Chọn ảnh" onPress={handleSelectImage} />
-      </View>
+        {!image && <Text style={{textAlign: 'center', fontSize: 16}}>Chọn ảnh</Text>}
+      </TouchableOpacity>
 
       <Text style={styles.label}>Ngày tạo</Text>
       <TextInput
@@ -214,12 +215,16 @@ const styles = StyleSheet.create({
   imageContainer: {
     alignItems: 'center',
     marginTop: 10,
+    width:150, height:150,
+    borderWidth:1,
+    borderColor:'#ccc',
+    justifyContent:'center',
+    borderStyle:'dashed'
   },
   image: {
     width: 150,
     height: 150,
-    marginBottom: 10,
-    borderRadius: 5,
+    position:'absolute'
   },
   button: {
       marginTop: 20,

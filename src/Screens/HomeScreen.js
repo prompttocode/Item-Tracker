@@ -43,8 +43,10 @@ const HomeScreen = () => {
   const loadProducts = useCallback(async () => {
     setIsLoading(true);
     try {
-      const keys = await AsyncStorage.getAllKeys();
-      const items = await AsyncStorage.multiGet(keys);
+      const allKeys = await AsyncStorage.getAllKeys();
+      // Filter out keys that are for invoices
+      const productKeys = allKeys.filter(key => !key.startsWith('invoice_'));
+      const items = await AsyncStorage.multiGet(productKeys);
       const loadedProducts = items
         .map(item => {
           try {

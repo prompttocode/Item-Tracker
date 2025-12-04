@@ -7,6 +7,7 @@ import {
   useCodeScanner,
 } from 'react-native-vision-camera';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-root-toast';
 import { CartContext } from '../context/CartContext';
 import CartIcon from '../components/CartIcon';
 
@@ -64,11 +65,41 @@ const QrScan = () => {
           if (productJSON) {
             const product = JSON.parse(productJSON);
             addToCart(product);
-            Alert.alert(
-              'Thành công',
-              `"${product.name}" đã được thêm vào giỏ hàng.`,
-              [{ text: 'OK', onPress: () => setIsScanningActive(true) }] // Resume scanning after alert
-            );
+            Toast.show(`"${product.name}" đã được thêm vào giỏ hàng.`, {
+              // Dưới đây là các tùy chọn để bạn có thể tùy chỉnh Toast
+              
+              // THỜI GIAN HIỂN THỊ
+              duration: 1000, // SHORT, LONG hoặc một số (ms)
+
+              // VỊ TRÍ
+              position: 200, // TOP, BOTTOM, CENTER
+              // Hoặc bạn có thể đặt một giá trị số cụ thể, ví dụ: 60 (cách đáy 60px)
+              
+              // KIỂU DÁNG & KÍCH THƯỚC
+              containerStyle: {
+                
+              },
+              backgroundColor: '#27ae60', // Màu nền (xanh lá cho thành công)
+              opacity: 1, // Độ trong suốt (0.0 - 1.0)
+              
+              // VĂN BẢN
+              textStyle: {
+                // fontSize: 16,
+                // fontWeight: 'bold',
+              },
+              textColor: 'white', // Màu chữ
+              
+              // HIỆU ỨNG
+              animation: true, // Bật/tắt hiệu ứng xuất hiện/biến mất
+              shadow: false, // Bật/tắt đổ bóng
+              
+              // TƯƠNG TÁC
+              hideOnPress: true, // Ẩn khi người dùng nhấn vào
+              delay: 0, // Thời gian trễ trước khi hiển thị (ms)
+            });
+            setTimeout(() => {
+              setIsScanningActive(true);
+            }, 2000);
           } else {
             Alert.alert(
               'Thông báo',
