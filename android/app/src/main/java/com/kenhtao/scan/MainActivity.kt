@@ -1,4 +1,4 @@
-package com.scan
+package com.kenhtao.scan
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
